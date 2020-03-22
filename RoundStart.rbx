@@ -17,7 +17,11 @@ local TPort1 = {map.Teleport1.Position.X, map.Teleport1.Position.Y, map.Teleport
 local TPort2 = {map.Teleport2.Position.X, map.Teleport2.Position.Y, map.Teleport2.Position.Z}
 local KPort  = {map.KILLERSPOT.Position.X, map.KILLERSPOT.Position.Y, map.KILLERSPOT.Position.Z}
 
+-- Local teams
+local survivers
+local killer
 
+-- Local Functions
 local function initialize()
 	-- getting the current time
 	RoundTimedStart = tick() 
@@ -25,14 +29,18 @@ end
 
 
 local function pickKiller()
-	wait(5)
+	wait(10)
 	-- This function should randomly pick a killer
 	local Players = game:GetService("Players"):GetPlayers()
 	local randomPlayer
 	if #Players > 0 then
 	    randomPlayer = Players[math.random(#Players)]
 	end	
+	killer = randomPlayer
+	
+	return killer
 end
+
 
 local function intermission()
 	-- countdown and wait for intermission time
@@ -64,6 +72,8 @@ while true do
 		intermission()
 		
 	end
+	killer = pickKiller()
+	print("The Killer for the round is ----> ", killer)	
 	TeleportPlayer(TPort1[1], TPort1[2], TPort1[3])	
 	print("Begin Round")
 	initialize()
