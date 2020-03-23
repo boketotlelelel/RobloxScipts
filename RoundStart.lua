@@ -12,8 +12,9 @@ local diffeq = math.random(1, 10)
 local map = game.Workspace.Crossroads
 local Players = game:GetService("Players"):GetPlayers()
 
-local survive = game.Teams.Survivor
-local killer = game.Teams.Killer
+--Teams
+local survivors = game.Teams.Survive
+local killers = game.Teams.Kill
 
 -- grabbing the spawn position
 local Spawn_x = game.Workspace.Lobby.SpawnLocation1.Position.X
@@ -25,6 +26,9 @@ local TPort1 = {map.Teleport1.Position.X, map.Teleport1.Position.Y, map.Teleport
 local TPort2 = {map.Teleport2.Position.X, map.Teleport2.Position.Y, map.Teleport2.Position.Z}
 local KPort  = {map.KILLERSPOT.Position.X, map.KILLERSPOT.Position.Y, map.KILLERSPOT.Position.Z}
 
+local maxKillers = 1
+local maxSurvivors = 8
+
 
 -- Local Functions
 local function initialize()
@@ -33,17 +37,33 @@ local function initialize()
 end
 
 
-local function pickKiller()
-	wait(10)
-	-- This function should randomly pick a killer
-	local randomPlayer
-	if #Players > 0 then
-	    randomPlayer = Players[math.random(#Players)]
-	end	
-	killer = randomPlayer
-	
-	return killer
+local function len(arr)
+	local Count = 0
+	for Index in arr do
+  		Count = Count + 1
+	end
+	return Count
 end
+
+
+local function pickKillerandTeams()
+	wait(5)
+	-- This function should randomly pick a killer
+	for _, player in pairs(game.Players:GetPlayers()) do
+	    math.randomseed(tick())
+	    local count = math.random(1,10)
+		print(count)
+	    if count == 1 and len(killers) < maxKillers then
+	        player.Team = killers
+			print("The Killer for the round is ----> ", player)	
+	    else
+	        player.Team = survivors
+			print("You are on the survivor team --->", player)
+	    end
+	end
+end
+
+
 
 local function intermission()
 	-- countdown and wait for intermission time
@@ -51,6 +71,8 @@ local function intermission()
 	print("Intermission Time")
 	wait(IntermissionTime)
 end
+
+
 
 -- Teleport Function
 local function TeleportPlayer(X,Y,Z)
@@ -74,11 +96,7 @@ while true do
 		print("Killer will be picked soon . . .")
 		intermission()
 	end
-
-
-	killer = pickKiller()
-	print("The Killer for the round is ----> ", killer)	
-
+	pickKillerandTeams()
 	TeleportPlayer(TPort1[1], TPort1[2], TPort1[3])	
 	print("Begin Round")
 	initialize()
