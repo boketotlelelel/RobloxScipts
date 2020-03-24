@@ -1,7 +1,7 @@
 -- Initialize the Start Time
 local RoundTimedStart 
-local IntermissionTime = 10
-local RoundTime = 10
+local IntermissionTime = 5
+local RoundTime = 5
 local waitTime = .50
 local roundCounter = 0
 
@@ -38,11 +38,11 @@ end
 
 
 local function len(arr)
-	local Count = 0
-	for Index in arr do
-  		Count = Count + 1
+	local teams = game:GetService("Teams"):GetTeams()
+	for _, team in pairs(teams) do
+		local players = team:GetPlayers()	
+		return #players
 	end
-	return Count
 end
 
 
@@ -51,9 +51,9 @@ local function pickKillerandTeams()
 	-- This function should randomly pick a killer
 	for _, player in pairs(game.Players:GetPlayers()) do
 	    math.randomseed(tick())
-	    local count = math.random(1,10)
+	    local count = math.random(1,2)
 		print(count)
-	    if count == 1 and len(killers) < maxKillers then
+	    if count == 1 and len(killers) <= maxKillers then
 	        player.Team = killers
 			print("The Killer for the round is ----> ", player)	
 	    else
@@ -97,7 +97,13 @@ while true do
 		intermission()
 	end
 	pickKillerandTeams()
-	TeleportPlayer(TPort1[1], TPort1[2], TPort1[3])	
+	for _, player in ipairs(game.Players:GetChildren()) do
+		if player.Team == killers then
+			TeleportPlayer(KPort[1], KPort[2], KPort[3])
+		else
+			TeleportPlayer(TPort1[1], TPort1[2], TPort1[3])	
+		end
+	end
 	print("Begin Round")
 	initialize()
 	repeat
