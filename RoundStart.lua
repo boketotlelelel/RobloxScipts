@@ -11,17 +11,17 @@ local killer_damage = 25
 local diffeq = math.random(1, 10)
 local map = game.Workspace.Crossroads
 local Players = game:GetService("Players"):GetPlayers()
+local Lobby = game.Workspace.Lobby
 
 --Teams
-local survivors = game.Teams.Survive
-local killers = game.Teams.Kill
+local survivors = game.Teams.Survivors
+local killers = game.Teams.Killer
+local lobby = game.Teams.Witnesses
 
--- grabbing the spawn position
-local Spawn_x = game.Workspace.Lobby.SpawnLocation1.Position.X
-local Spawn_y = game.Workspace.Lobby.SpawnLocation1.Position.Y
-local Spawn_z = game.Workspace.Lobby.SpawnLocation1.Position.Z
+
 
 -- Teleportation
+local LobbySpawn = {Lobby.SpawnLocation.Position.X, Lobby.SpawnLocation.Position.Y, Lobby.SpawnLocation.Position.Z}
 local TPort1 = {map.Teleport1.Position.X, map.Teleport1.Position.Y, map.Teleport1.Position.Z}
 local TPort2 = {map.Teleport2.Position.X, map.Teleport2.Position.Y, map.Teleport2.Position.Z}
 local KPort  = {map.KILLERSPOT.Position.X, map.KILLERSPOT.Position.Y, map.KILLERSPOT.Position.Z}
@@ -98,7 +98,9 @@ while true do
 	end
 	pickKillerandTeams()
 	for _, player in ipairs(game.Players:GetChildren()) do
-		if player.Team == killers then
+		if player.Team == lobby then
+			TeleportPlayer(LobbySpawn[1], LobbySpawn[2], LobbySpawn[3])
+		elseif player.Team == killers then
 			TeleportPlayer(KPort[1], KPort[2], KPort[3])
 		else
 			TeleportPlayer(TPort1[1], TPort1[2], TPort1[3])	
@@ -112,7 +114,10 @@ while true do
 		wait(waitTime)
 	until GameRunningTime > RoundTime
 	print("End of Round")
-	TeleportPlayer(Spawn_x, Spawn_y, Spawn_z)	
+	for _, player in ipairs(game.Players:GetChildren()) do
+		TeleportPlayer(LobbySpawn[1], LobbySpawn[2], LobbySpawn[3])
+		player.Team = lobby
+	end
 	intermission()
 	roundCounter = roundCounter + 1
 end
