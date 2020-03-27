@@ -1,9 +1,10 @@
 -- Initialize the Start Time
 local RoundTimedStart 
-local IntermissionTime = 5
-local RoundTime = 5
-local waitTime = .50
+_G.IntermissionTime = 5
+_G.RoundTime = 5
+_G.waitTime = .50
 local roundCounter = 0
+_G.round_counter = 0 
 
 local playerHealth = 100
 local killer_damage = 25
@@ -29,12 +30,18 @@ local KPort  = {map.KILLERSPOT.Position.X, map.KILLERSPOT.Position.Y, map.KILLER
 local maxKillers = 1
 local maxSurvivors = 8
 
+-- Morph Function
+
+-- GUI for player health
+
 
 -- Local Functions
 local function initialize()
 	-- getting the current time
 	RoundTimedStart = tick() 
 end
+
+-- TODO implement len function for arrays
 
 
 local function len(arr)
@@ -46,30 +53,17 @@ local function len(arr)
 end
 
 
-local function pickKillerandTeams()
-	wait(5)
-	-- This function should randomly pick a killer
-	for _, player in pairs(game.Players:GetPlayers()) do
-	    math.randomseed(tick())
-	    local count = math.random(1,2)
-		print(count)
-	    if count == 1 and len(killers) <= maxKillers then
-	        player.Team = killers
-			print("The Killer for the round is ----> ", player)	
-	    else
-	        player.Team = survivors
-			print("You are on the survivor team --->", player)
-	    end
-	end
+local function initialize()
+	-- getting the current time
+	RoundTimedStart = tick() 
 end
-
 
 
 local function intermission()
 	-- countdown and wait for intermission time
 	-- return the intermission time remaining
 	print("Intermission Time")
-	wait(IntermissionTime)
+	wait(_G.IntermissionTime)
 end
 
 
@@ -85,6 +79,26 @@ local function TeleportPlayer(X,Y,Z)
    		end
 	end
 end
+
+
+
+
+local function pickKillerandTeams()
+	wait(5)
+	-- This function should randomly pick a killer
+	for _, player in pairs(game.Players:GetPlayers()) do
+	    math.randomseed(tick())
+	    local count = math.random(1,10)
+	    if count == 1 and len(killers) <= maxKillers then
+	        player.Team = killers
+			print("The Killer for the round is ----> ", player)	
+	    else
+	        player.Team = survivors
+			print("You are on the survivor team --->", player)
+	    end
+	end
+end
+
 
 
 -- game loop
@@ -103,16 +117,23 @@ while true do
 		elseif player.Team == killers then
 			TeleportPlayer(KPort[1], KPort[2], KPort[3])
 		else
-			TeleportPlayer(TPort1[1], TPort1[2], TPort1[3])	
+			local count = math.random(1,10)
+			if count <= 5 then
+				TeleportPlayer(TPort1[1], TPort1[2], TPort1[3])	
+			else 
+				TeleportPlayer(TPort2[1], TPort2[2], TPort2[3])
+			end
 		end
 	end
+	
+	
 	print("Begin Round")
 	initialize()
 	repeat
 		local currentTime = tick()
 		local GameRunningTime = currentTime - RoundTimedStart
-		wait(waitTime)
-	until GameRunningTime > RoundTime
+		wait(_G.waitTime)
+	until GameRunningTime > _G.RoundTime
 	print("End of Round")
 	for _, player in ipairs(game.Players:GetChildren()) do
 		TeleportPlayer(LobbySpawn[1], LobbySpawn[2], LobbySpawn[3])
