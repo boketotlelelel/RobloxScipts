@@ -19,8 +19,6 @@ local survivors = game.Teams.Survivors
 local killers = game.Teams.Killer
 local lobby = game.Teams.Witnesses
 
-
-
 -- Teleportation
 local LobbySpawn = {Lobby.SpawnLocation.Position.X, Lobby.SpawnLocation.Position.Y, Lobby.SpawnLocation.Position.Z}
 local TPort1 = {map.Teleport1.Position.X, map.Teleport1.Position.Y, map.Teleport1.Position.Z}
@@ -30,18 +28,35 @@ local KPort  = {map.KILLERSPOT.Position.X, map.KILLERSPOT.Position.Y, map.KILLER
 local maxKillers = 1
 local maxSurvivors = 8
 
--- Morph Function
+-- add songs here
+local Sounds = {
+	"rbxassetid://1841580829",
+	"rbxassetid://1838264699",
+	"rbxassetid://1841600954",
+	"rbxassetid://1846706224",
+	"rbxassetid://4566170647",
+	"rbxassetid://304235605"
+	
+	}
+	
+	
+local sounds = game.Workspace.Sound
+local audioID = sounds.SoundId
+local music = Instance.new("Sound", game.Workspace)
 
--- GUI for player health
-
+	
+local function playMusic(count)
+	local id = Sounds[count]
+	music.SoundId = id
+	print(id)
+	music:Play()
+end
 
 -- Local Functions
 local function initialize()
 	-- getting the current time
 	RoundTimedStart = tick() 
 end
-
--- TODO implement len function for arrays
 
 
 local function len(arr)
@@ -126,14 +141,16 @@ while true do
 		end
 	end
 	
-	
+	local count = math.random(1, table.getn(Sounds))
 	print("Begin Round")
+	playMusic(count)
 	initialize()
 	repeat
 		local currentTime = tick()
 		local GameRunningTime = currentTime - RoundTimedStart
 		wait(_G.waitTime)
 	until GameRunningTime > _G.RoundTime
+	music:Stop()
 	print("End of Round")
 	for _, player in ipairs(game.Players:GetChildren()) do
 		TeleportPlayer(LobbySpawn[1], LobbySpawn[2], LobbySpawn[3])
