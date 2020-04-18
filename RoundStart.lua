@@ -1,10 +1,10 @@
 -- Initialize the Start Time
 local RoundTimedStart 
-_G.IntermissionTime = 5
-_G.RoundTime = 5
-_G.waitTime = .50
+local IntermissionTime = 5
+local RoundTime = 5
+local waitTime = .50
 local roundCounter = 0
-_G.round_counter = 0 
+local round_counter = 0 
 
 local playerHealth = 100
 local killer_damage = 25
@@ -78,7 +78,7 @@ local function intermission()
 	-- countdown and wait for intermission time
 	-- return the intermission time remaining
 	print("Intermission Time")
-	wait(_G.IntermissionTime)
+	wait(IntermissionTime)
 end
 
 
@@ -148,8 +148,8 @@ while true do
 	repeat
 		local currentTime = tick()
 		local GameRunningTime = currentTime - RoundTimedStart
-		wait(_G.waitTime)
-	until GameRunningTime > _G.RoundTime
+		wait(local waitTime)
+	until GameRunningTime > local RoundTime
 	music:Stop()
 	print("End of Round")
 	for _, player in ipairs(game.Players:GetChildren()) do
