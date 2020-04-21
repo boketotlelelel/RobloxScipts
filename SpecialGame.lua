@@ -1,8 +1,7 @@
 local RoundTimeStart
-local round_time = 120
-local intermission_time = 10
-local warning_time = 5
-local wait_time = .50
+round_time = 120
+intermission_time = 20
+warning_time = 10
 local round_map
 local rand_choice
 local maxKillers = 1
@@ -64,15 +63,12 @@ local function len(arr)
 	end
 end
 
-
-
 local function intermission_wait()
 	playMusic(LobbySounds, 1)
 	print("Intermission")
 	for count = 1, intermission_time do
 		intermission_time =	intermission_time - 1
 		wait(1)
-		print(intermission_time)
 	end
 	music:Stop()
 end
@@ -83,7 +79,7 @@ local function warning_countdown()
 	for count = 1, warning_time  do
 		warning_time = warning_time - 1
 		wait(1)
-		print(warning_time)
+
 	end
 	music:Stop()
 end
@@ -98,7 +94,7 @@ local function pickKillerandTeams()
 	-- This function should randomly pick a killer
 	for _, player in pairs(game.Players:GetPlayers()) do
 		
-	    local count = math.random(1, player_num)
+	    local count = math.random(1, player_num + 20)
 		print (count)
 	    if count == 1 and len(killers) <= maxKillers then
 	        player.Team = killers
@@ -178,7 +174,10 @@ local function RoundStart()
 	rand_choice = math.random(1, #GameSounds)
 	playMusic(GameSounds, rand_choice)
 	
-	wait(round_time)
+	for count = 1, round_time  do
+		round_time = round_time - 1
+		wait(1)
+	end
 	
 	MapToClone.Parent = nil
 	music:Stop()
