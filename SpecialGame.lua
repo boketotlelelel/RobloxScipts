@@ -1,7 +1,7 @@
 local RoundTimeStart
 local round_time = 120
-local intermission_time = 25
-local warning_time = 10
+local intermission_time = 10
+local warning_time = 5
 local wait_time = .50
 local round_map
 local rand_choice
@@ -12,23 +12,25 @@ local survivors = game.Teams.Survivors
 local killers = game.Teams.Killer
 local lobby = game.Teams.Witnesses
 
+local players = game:GetService("Players")
+
 
 local TPort1 
 local TPort2 
-local TPort3
-local TPort4
-
+local TPort3 
+local TPort4 
+local KPort
 ------------Sounds-------------
 local LobbySounds = {
-	"rbxassetid://1841580829",
-	"rbxassetid://4566170647"
+	"rbxassetid://432472104",
+	"rbxassetid://709122469"
 }
 
 local GameSounds = {
-	"rbxassetid://1838264699",
-	"rbxassetid://1841600954",
-	"rbxassetid://1846706224",
-	"rbxassetid://304235605"
+	"rbxassetid://155791979",
+	"rbxassetid://877670289",
+	"rbxassetid://245939390",
+	"rbxassetid://4439690368"
 	
 	}
 local sounds = game.Workspace.Sound	
@@ -86,11 +88,17 @@ local function warning_countdown()
 	music:Stop()
 end
 
+local function getNumberOfPlayers()
+    return #players:GetPlayers()
+end
+
 local function pickKillerandTeams()
+	--The bracketed Players is a string. Sorry, I can not use quotes on mobile
+	local player_num = getNumberOfPlayers()
 	-- This function should randomly pick a killer
 	for _, player in pairs(game.Players:GetPlayers()) do
-	    math.randomseed(tick())
-	    local count = math.random(1, len(player))
+		
+	    local count = math.random(1, player_num)
 		print (count)
 	    if count == 1 and len(killers) <= maxKillers then
 	        player.Team = killers
@@ -109,7 +117,7 @@ local function TeleportPlayer(X,Y,Z)
    --Make sure the character exists and its HumanoidRootPart exists
    		if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
        --add an offset of 5 for each character
-     	 	player.Character.HumanoidRootPart.CFrame = target + Vector3.new(0, i * 5, 0)
+     	 	player.Character.HumanoidRootPart.CFrame = target + Vector3.new(0, 0,0)
    		end
 	end
 end
@@ -124,10 +132,7 @@ end
 
 local function RoundStart()
 	initialize()
-	rand_choice = math.random(1, #GameSounds)
-	playMusic(GameSounds, rand_choice)
 	round_map = pickMap()
-	print(round_map)
 	local ReplicatedStorage = game:GetService("ReplicatedStorage")
 	local MapToClone = ReplicatedStorage:WaitForChild(round_map):Clone()
 	MapToClone.Parent = game.Workspace
@@ -142,22 +147,42 @@ local function RoundStart()
 	wait(5)
 	print("ROUND IS STARTING . . . ")
 	
-	local TPort1 = {map.TPort1.Position.X, map.TPort1.Position.Y, map.TPort1.Position.Z}
-	local TPort2 = {map.TPort2.Position.X, map.TPort2.Position.Y, map.TPort2.Position.Z}
-	local TPort3 = {map.TPort3.Position.X, map.TPort3.Position.Y, map.TPort3.Position.Z}
-	local TPort4 = {map.TPort4.Position.X, map.TPort4.Position.Y, map.TPort4.Position.Z}
 	
-	local randon_tport = math.random(1, 4) --change whenever the number of tport spawns is set in stone
-	local TPORT = "TPort1"
-	TPORT = TPORT:gsub("1", tostring(randon_tport))
+	TPort1 = {map.TPort1.Position.X, map.TPort1.Position.Y, map.TPort1.Position.Z}
+	TPort2 = {map.TPort2.Position.X, map.TPort2.Position.Y, map.TPort2.Position.Z}
+	TPort3 = {map.TPort3.Position.X, map.TPort3.Position.Y, map.TPort3.Position.Z}
+	TPort4 = {map.TPort4.Position.X, map.TPort4.Position.Y, map.TPort4.Position.Z}
+	KPort  = {map.KTPort.Position.X, map.KTPort.Position.Y, map.KTPort.Position.Z}
+
 	
-	print(TPORT)
-	
-	TeleportPlayer(TPORT[1], TPORT[2], TPORT[3])
+	for _, player in ipairs(game.Players:GetChildren()) do
+		local count = math.random(1,10)
+		print(count)
+		
+		if player.Team == survivors then
+			if count <= 2 then
+				TeleportPlayer(TPort1[1], TPort1[2], TPort1[3])	
+			elseif count > 2 and count <=4 then 
+				TeleportPlayer(TPort2[1], TPort2[2], TPort2[3])
+			elseif count > 4 and count <=6 then 	
+				TeleportPlayer(TPort3[1], TPort3[2], TPort3[3])	
+			elseif count > 6 and count <=8 then 
+				TeleportPlayer(TPort4[1], TPort4[2], TPort4[3])
+			elseif count <= 10 and count >= 9 then 
+				TeleportPlayer(TPort2[1], TPort2[2], TPort2[3])
+			end					
+		else
+			TeleportPlayer(KPort[1], KPort[2], KPort[3])
+		end
+	end
+	rand_choice = math.random(1, #GameSounds)
+	playMusic(GameSounds, rand_choice)
 	
 	wait(round_time)
+	
 	MapToClone.Parent = nil
 	music:Stop()
+
 end
 
 while true do
