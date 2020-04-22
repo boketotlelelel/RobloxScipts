@@ -1,16 +1,18 @@
+-- LOCAL VARIABLES
 local RoundTimeStart
-round_time = 120
-intermission_time = 20
-warning_time = 10
+local round_time = 15
+local intermission_time = 5
+local warning_time = 5
 local round_map
 local rand_choice
 local maxKillers = 1
 local maxSurvivors = 15
---Teams
+
+
+--TEAMS
 local survivors = game.Teams.Survivors
 local killers = game.Teams.Killer
 local lobby = game.Teams.Witnesses
-
 local players = game:GetService("Players")
 
 
@@ -19,9 +21,9 @@ local TPort2
 local TPort3 
 local TPort4 
 local KPort
-------------Sounds-------------
+--SOUNDS
 local LobbySounds = {
-	"rbxassetid://432472104",
+	"rbxassetid://580285227",
 	"rbxassetid://709122469"
 }
 
@@ -35,26 +37,34 @@ local GameSounds = {
 local sounds = game.Workspace.Sound	
 local audioID = sounds.SoundId
 local music = Instance.new("Sound", game.Workspace)
-------------Sounds-------------	
 	
-------------MAPS-------------	
+--MAPS
 local Maps = {
 	"Map01",
 	"Map02"
 	}
-------------MAPS-------------
+--[[
+FUNCTION TO START A TICK TIMER
+]]
 local function initialize()
 	-- getting the current time
 	RoundTimeStart = tick() 
 end
 
-
+--[[
+FUNCTION TAKES AN ARR AND COUNT,
+PLAYS THE SONG AT THE INDEX OF THE COUNT
+]]
 local function playMusic(arr, count)
 	local id = arr[count]
 	music.SoundId = id
 	music:Play()
+	
 end
 
+--[[
+RETURNS THE LENGTH OF GIVEN ARRAY
+]]
 local function len(arr)
 	local teams = game:GetService("Teams"):GetTeams()
 	for _, team in pairs(teams) do
@@ -63,6 +73,10 @@ local function len(arr)
 	end
 end
 
+--[[
+FUNCTION HANDLES THE INTERMISSION WAIT TIMES
+FOR THE LOBBY
+]]
 local function intermission_wait()
 	playMusic(LobbySounds, 1)
 	print("Intermission")
@@ -73,6 +87,10 @@ local function intermission_wait()
 	music:Stop()
 end
 
+--[[
+FUNCTION HANDLES THE COUNTDOWN 
+BEFORE TELEPORTING TO ROUND MAP
+]]
 local function warning_countdown()
 	playMusic(LobbySounds, 2)
 	print("WARNING, Game starting soon . . .")
@@ -83,19 +101,35 @@ local function warning_countdown()
 	end
 	music:Stop()
 end
-
+--[[
+RETURNS THE NUMBER OF PLAYERS
+]]
 local function getNumberOfPlayers()
     return #players:GetPlayers()
 end
 
+--[[
+SEARCHES FOR KILLER AND GIVES THEM THE WEAPON
+WILL BE UPDATED FOR SHOP
+]]
+local function GiveKillerWeapon(player)
+	for _, player in pairs(game.Players:GetPlayers()) do
+		if player.Team == killers then
+			local weapon = game.ServerStorage.DoubleChainsaw:Clone()
+			weapon.Parent = player.Backpack
+		end
+	end
+end
+
+--[[
+FUNCTION WILL RANDONLY ASSIGN TEAMS
+]]
 local function pickKillerandTeams()
-	--The bracketed Players is a string. Sorry, I can not use quotes on mobile
 	local player_num = getNumberOfPlayers()
 	-- This function should randomly pick a killer
 	for _, player in pairs(game.Players:GetPlayers()) do
 		
-	    local count = math.random(1, player_num + 20)
-		print (count)
+	    local count = math.random(1, player_num) --chane back to just player num when more players added
 	    if count == 1 and len(killers) <= maxKillers then
 	        player.Team = killers
 			print("The Killer for the round is ----> ", player)	
@@ -106,26 +140,57 @@ local function pickKillerandTeams()
 	end
 end
 
--- Teleport Function
+--[[
+FUNCTION WILL TELEPORT PLAYER TO 
+LOCATION GIVEN X,Y,AND Z COORDINATE
+]]
 local function TeleportPlayer(X,Y,Z)
 	local target = CFrame.new(X,Y,Z) 
 	for i, player in ipairs(game.Players:GetChildren()) do
    --Make sure the character exists and its HumanoidRootPart exists
    		if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
        --add an offset of 5 for each character
-     	 	player.Character.HumanoidRootPart.CFrame = target + Vector3.new(0, 0,0)
+     	 	player.Character.HumanoidRootPart.CFrame = target + Vector3.new(0,0,0)
    		end
 	end
 end
 
-
+--[[
+THIS FUNCTION WILL REANDOMLY
+PICK A MAP FROM MAP ARRAY
+]]
 local function pickMap()
 	local map_choice = math.random(1, #Maps)
     round_map = Maps[map_choice]
 	return round_map
 end
 
+--[[
+THIS FUNCTION WILL CHANGE THE VOLUME BASED 
+ON THE SONG ID
+]]
+local function change_vol(soundID)
+	local Volume 
+	for _, object in next, GameSounds do
+	    sounds.Volume = Volume
+		if soundID == "rbxassetid://4439690368" then
+			Volume = 5
+		elseif soundID == "rbxassetid://155791979" then
+			Volume = 7
+		elseif soundID == "rbxassetid://877670289" then
+			Volume = 8
+		elseif soundID == "rbxassetid://245939390" then
+			Volume = 9
+		else
+			Volume = 10
+		end	
+	end
+end
 
+--[[
+THIS FUNCTION ESSENTIALLY TAKES CARE OF THE
+ENTIRE ROUND TIMER STRUCTURE
+]]
 local function RoundStart()
 	initialize()
 	round_map = pickMap()
@@ -143,7 +208,6 @@ local function RoundStart()
 	wait(5)
 	print("ROUND IS STARTING . . . ")
 	
-	
 	TPort1 = {map.TPort1.Position.X, map.TPort1.Position.Y, map.TPort1.Position.Z}
 	TPort2 = {map.TPort2.Position.X, map.TPort2.Position.Y, map.TPort2.Position.Z}
 	TPort3 = {map.TPort3.Position.X, map.TPort3.Position.Y, map.TPort3.Position.Z}
@@ -153,8 +217,6 @@ local function RoundStart()
 	
 	for _, player in ipairs(game.Players:GetChildren()) do
 		local count = math.random(1,10)
-		print(count)
-		
 		if player.Team == survivors then
 			if count <= 2 then
 				TeleportPlayer(TPort1[1], TPort1[2], TPort1[3])	
@@ -169,11 +231,15 @@ local function RoundStart()
 			end					
 		else
 			TeleportPlayer(KPort[1], KPort[2], KPort[3])
+			GiveKillerWeapon(player)
 		end
 	end
 	rand_choice = math.random(1, #GameSounds)
+	local SoundPicked = GameSounds[rand_choice]
+	print(SoundPicked)
 	playMusic(GameSounds, rand_choice)
-	
+	change_vol(SoundPicked)	
+
 	for count = 1, round_time  do
 		round_time = round_time - 1
 		wait(1)
@@ -184,6 +250,9 @@ local function RoundStart()
 
 end
 
+--[[
+THIS LOOP IS THE GAME LOOP
+]]
 while true do
 	intermission_wait()
 	warning_countdown()
