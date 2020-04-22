@@ -125,19 +125,26 @@ end
 FUNCTION WILL RANDONLY ASSIGN TEAMS
 ]]
 local function pickKillerandTeams()
+	local player_name_holder = {}
 	local player_num = getNumberOfPlayers()
-	-- This function should randomly pick a killer
-	for _, player in pairs(game.Players:GetPlayers()) do
-		
-	    local count = math.random(1, player_num) --chane back to just player num when more players added
-	    if count == 1 and len(killers) <= maxKillers then
-	        player.Team = killers
-			print("The Killer for the round is ----> ", player)	
-	    else
-	        player.Team = survivors
-			print("You are on the survivor team ---->", player)
-	    end
+	local playersss = game.Players:GetPlayers()
+	
+	for i = 1, #playersss do 
+		table.insert(player_name_holder, playersss[i])
 	end
+	
+    local count = math.random(1, #player_name_holder) --chane back to just player num when more players added
+  	local killer = player_name_holder[count]
+	killer.Team = killers 
+    table.remove(player_name_holder, count)
+	print("The Killer for the round is ----> ", killer)
+		
+	for i = 1, #player_name_holder do	
+		local survs = player_name_holder[i]    
+		survs.Team = survivors
+		print("You are on the survivor team ---->", survs)
+	end
+
 end
 
 --[[
