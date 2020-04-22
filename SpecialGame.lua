@@ -1,6 +1,6 @@
 -- LOCAL VARIABLES
 local RoundTimeStart
-local round_time = 15
+local round_time = 3
 local intermission_time = 5
 local warning_time = 5
 local round_map
@@ -21,6 +21,30 @@ local TPort2
 local TPort3 
 local TPort4 
 local KPort
+
+local lobby = game.Workspace.Lobby
+
+--SPAWNS
+local SL1 = {lobby.SpawnLocation1.Position.X,lobby.SpawnLocation1.Position.Y,lobby.SpawnLocation1.Position.Z}
+local SL2 = {lobby.SpawnLocation2.Position.X,lobby.SpawnLocation2.Position.Y,lobby.SpawnLocation2.Position.Z}
+local SL3 = {lobby.SpawnLocation3.Position.X,lobby.SpawnLocation3.Position.Y,lobby.SpawnLocation3.Position.Z}
+local SL4 = {lobby.SpawnLocation4.Position.X,lobby.SpawnLocation4.Position.Y,lobby.SpawnLocation4.Position.Z}
+local SL5 = {lobby.SpawnLocation5.Position.X,lobby.SpawnLocation5.Position.Y,lobby.SpawnLocation5.Position.Z}
+local SL6 = {lobby.SpawnLocation6.Position.X,lobby.SpawnLocation6.Position.Y,lobby.SpawnLocation6.Position.Z}
+local SL7 = {lobby.SpawnLocation7.Position.X,lobby.SpawnLocation7.Position.Y,lobby.SpawnLocation7.Position.Z}
+local SL8 = {lobby.SpawnLocation8.Position.X,lobby.SpawnLocation8.Position.Y,lobby.SpawnLocation8.Position.Z}
+
+local spawns = {
+	"SL1",
+	"SL2",
+	"SL3",
+	"SL4",
+	"SL5",
+	"SL6",
+	"SL7",
+	"SL8"
+}
+
 --SOUNDS
 local LobbySounds = {
 	"rbxassetid://580285227",
@@ -97,7 +121,6 @@ local function warning_countdown()
 	for count = 1, warning_time  do
 		warning_time = warning_time - 1
 		wait(1)
-
 	end
 	music:Stop()
 end
@@ -172,6 +195,37 @@ local function pickMap()
 	return round_map
 end
 
+
+local function clearInventory()
+	for _,v in pairs(game.Players:GetPlayers()) do
+	    v.Backpack:ClearAllChildren() 
+	end
+end
+
+
+local function SendToSpawn()
+	for _, player in ipairs(game.Players:GetChildren()) do
+		local count = math.random(1,16)
+		if count <= 2 then
+			TeleportPlayer(SL1[1], SL1[2], SL1[3])	
+		elseif count > 2 and count <= 4 then 
+			TeleportPlayer(SL2[1], SL2[2], SL2[3])
+		elseif count > 4 and count <= 6 then 	
+			TeleportPlayer(SL3[1], SL3[2], SL3[3])	
+		elseif count > 6 and count <= 8 then 
+			TeleportPlayer(SL4[1], SL4[2], SL4[3])
+		elseif count > 8 and count <= 10 then 
+			TeleportPlayer(SL5[1], SL5[2], SL5[3])
+		elseif count > 10 and count <= 12 then 
+			TeleportPlayer(SL6[1], SL6[2], SL6[3])
+		elseif count > 12 and count <= 14 then 
+			TeleportPlayer(SL7[1], SL7[2], SL7[3])
+		elseif count > 14 and count <= 16 then 
+			TeleportPlayer(SL8[1], SL8[2], SL8[3])
+		end					
+	end
+end
+
 --[[
 THIS FUNCTION WILL CHANGE THE VOLUME BASED 
 ON THE SONG ID
@@ -223,7 +277,7 @@ local function RoundStart()
 
 	
 	for _, player in ipairs(game.Players:GetChildren()) do
-		local count = math.random(1,10)
+		local count = math.random(1,8)
 		if player.Team == survivors then
 			if count <= 2 then
 				TeleportPlayer(TPort1[1], TPort1[2], TPort1[3])	
@@ -233,8 +287,6 @@ local function RoundStart()
 				TeleportPlayer(TPort3[1], TPort3[2], TPort3[3])	
 			elseif count > 6 and count <=8 then 
 				TeleportPlayer(TPort4[1], TPort4[2], TPort4[3])
-			elseif count <= 10 and count >= 9 then 
-				TeleportPlayer(TPort2[1], TPort2[2], TPort2[3])
 			end					
 		else
 			TeleportPlayer(KPort[1], KPort[2], KPort[3])
@@ -252,8 +304,17 @@ local function RoundStart()
 		wait(1)
 	end
 	
+	for _, player in ipairs(game.Players:GetChildren()) do
+		if player.Team == killers then
+			clearInventory()
+		end
+	end
+	
+	
+	wait(2)
 	MapToClone.Parent = nil
 	music:Stop()
+	print("ROUND HAS ENDED")
 
 end
 
@@ -265,4 +326,5 @@ while true do
 	warning_countdown()
 	pickKillerandTeams()
 	RoundStart()
+	SendToSpawn()
 end
