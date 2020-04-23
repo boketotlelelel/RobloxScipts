@@ -8,11 +8,13 @@ local rand_choice
 local maxKillers = 1
 local maxSurvivors = 15
 
+-- Make Model
+-- Try to figure out gui
 
 --TEAMS
 local survivors = game.Teams.Survivors
 local killers = game.Teams.Killer
-local lobby = game.Teams.Witnesses
+local witnesses = game.Teams.Witnesses
 local players = game:GetService("Players")
 
 
@@ -34,16 +36,6 @@ local SL6 = {lobby.SpawnLocation6.Position.X,lobby.SpawnLocation6.Position.Y,lob
 local SL7 = {lobby.SpawnLocation7.Position.X,lobby.SpawnLocation7.Position.Y,lobby.SpawnLocation7.Position.Z}
 local SL8 = {lobby.SpawnLocation8.Position.X,lobby.SpawnLocation8.Position.Y,lobby.SpawnLocation8.Position.Z}
 
-local spawns = {
-	"SL1",
-	"SL2",
-	"SL3",
-	"SL4",
-	"SL5",
-	"SL6",
-	"SL7",
-	"SL8"
-}
 
 --SOUNDS
 local LobbySounds = {
@@ -138,7 +130,7 @@ WILL BE UPDATED FOR SHOP
 local function GiveKillerWeapon(player)
 	for _, player in pairs(game.Players:GetPlayers()) do
 		if player.Team == killers then
-			local weapon = game.ServerStorage.DoubleChainsaw:Clone()
+			local weapon = game.ServerStorage.Chainsaw:Clone()
 			weapon.Parent = player.Backpack
 		end
 	end
@@ -224,6 +216,11 @@ local function SendToSpawn()
 			TeleportPlayer(SL8[1], SL8[2], SL8[3])
 		end					
 	end
+
+	for _, Player in ipairs(game.Players:GetChildren()) do
+		clearInventory()
+		Player.Team = witnesses
+	end
 end
 
 --[[
@@ -234,7 +231,7 @@ local function change_vol(soundID)
 	local Volume 
 	for _, object in next, GameSounds do
 	    sounds.Volume = Volume
-		if soundID == "rbxassetid://4439690368" then
+		if soundID ==  "rbxassetid://4439690368" then
 			Volume = 5
 		elseif soundID == "rbxassetid://155791979" then
 			Volume = 7
@@ -304,12 +301,6 @@ local function RoundStart()
 		wait(1)
 	end
 	
-	for _, player in ipairs(game.Players:GetChildren()) do
-		if player.Team == killers then
-			clearInventory()
-		end
-	end
-	
 	
 	wait(2)
 	MapToClone.Parent = nil
@@ -324,6 +315,7 @@ THIS LOOP IS THE GAME LOOP
 while true do
 	intermission_wait()
 	warning_countdown()
+	wait(3)
 	pickKillerandTeams()
 	RoundStart()
 	SendToSpawn()
