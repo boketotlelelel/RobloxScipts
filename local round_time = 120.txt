@@ -1,0 +1,42 @@
+local seconds = script.Parent.Parent.Time
+
+script.Parent.Text = seconds.Value
+
+
+local function IntermissionTime()
+	seconds.Value = 26
+	for i = 1, seconds.Value do
+		wait(1)
+		seconds.Value = seconds.Value - 1
+		script.Parent.Text = "~~INTERMISSION TIME~~"
+	end
+end
+
+
+
+local function WarningTime()
+	seconds.Value = 11
+	for i = 1, seconds.Value do
+		wait(1)
+		seconds.Value = seconds.Value - 1
+		script.Parent.Text = "~~GAME STARTING SOON~~ "
+	end
+end
+
+
+local function RoundTime()
+	seconds.Value = 121
+	for i = 1, seconds.Value do
+		wait(1)
+		seconds.Value = seconds.Value - 1
+		script.Parent.Text = "ROUND TIME: " .. seconds.Value
+	end
+end
+
+
+while true do
+	IntermissionTime()
+	WarningTime()
+	wait(4.25)
+	RoundTime()
+end

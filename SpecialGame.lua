@@ -1,8 +1,9 @@
 -- LOCAL VARIABLES
 local RoundTimeStart
-local round_time = 3
-local intermission_time = 5
-local warning_time = 5
+local GameRunningTime = 120
+local round_time = 120
+local intermission_time = 25
+local warning_time = 10
 local round_map
 local rand_choice
 local maxKillers = 1
@@ -36,7 +37,6 @@ local SL6 = {lobby.SpawnLocation6.Position.X,lobby.SpawnLocation6.Position.Y,lob
 local SL7 = {lobby.SpawnLocation7.Position.X,lobby.SpawnLocation7.Position.Y,lobby.SpawnLocation7.Position.Z}
 local SL8 = {lobby.SpawnLocation8.Position.X,lobby.SpawnLocation8.Position.Y,lobby.SpawnLocation8.Position.Z}
 
-
 --SOUNDS
 local LobbySounds = {
 	"rbxassetid://580285227",
@@ -57,8 +57,12 @@ local music = Instance.new("Sound", game.Workspace)
 --MAPS
 local Maps = {
 	"Map01",
-	"Map02"
+	"Map02", 
+	"Map03",
+	"Map04",
+	"Map05"
 	}
+
 --[[
 FUNCTION TO START A TICK TIMER
 ]]
@@ -94,12 +98,14 @@ FUNCTION HANDLES THE INTERMISSION WAIT TIMES
 FOR THE LOBBY
 ]]
 local function intermission_wait()
+	initialize()
 	playMusic(LobbySounds, 1)
-	print("Intermission")
-	for count = 1, intermission_time do
-		intermission_time =	intermission_time - 1
+	--print("Intermission")
+	local CurrentIntermission = 25
+	repeat
 		wait(1)
-	end
+		CurrentIntermission = CurrentIntermission - 1
+	until CurrentIntermission == 0
 	music:Stop()
 end
 
@@ -108,12 +114,15 @@ FUNCTION HANDLES THE COUNTDOWN
 BEFORE TELEPORTING TO ROUND MAP
 ]]
 local function warning_countdown()
+	initialize()
 	playMusic(LobbySounds, 2)
-	print("WARNING, Game starting soon . . .")
-	for count = 1, warning_time  do
-		warning_time = warning_time - 1
+	--print("WARNING, Game starting soon . . .")
+	local warningTime = 10
+	repeat
 		wait(1)
-	end
+		warningTime = warningTime - 1
+	until warningTime == 0
+
 	music:Stop()
 end
 --[[
@@ -123,6 +132,7 @@ local function getNumberOfPlayers()
     return #players:GetPlayers()
 end
 
+
 --[[
 SEARCHES FOR KILLER AND GIVES THEM THE WEAPON
 WILL BE UPDATED FOR SHOP
@@ -130,7 +140,7 @@ WILL BE UPDATED FOR SHOP
 local function GiveKillerWeapon(player)
 	for _, player in pairs(game.Players:GetPlayers()) do
 		if player.Team == killers then
-			local weapon = game.ServerStorage.Chainsaw:Clone()
+			local weapon = game.ServerStorage.ClassicSword:Clone()
 			weapon.Parent = player.Backpack
 		end
 	end
@@ -152,12 +162,12 @@ local function pickKillerandTeams()
   	local killer = player_name_holder[count]
 	killer.Team = killers 
     table.remove(player_name_holder, count)
-	print("The Killer for the round is ----> ", killer)
+	--print("The Killer for the round is ----> ", killer)
 		
 	for i = 1, #player_name_holder do	
 		local survs = player_name_holder[i]    
 		survs.Team = survivors
-		print("You are on the survivor team ---->", survs)
+		--print("You are on the survivor team ---->", survs)
 	end
 
 end
@@ -192,6 +202,17 @@ local function clearInventory()
 	for _,v in pairs(game.Players:GetPlayers()) do
 	    v.Backpack:ClearAllChildren() 
 	end
+
+	for _, Player in ipairs(game.Players:GetChildren()) do
+		if Player.Team == killers then
+			if Player.Character then
+				local hum = Player.Character:FindFirstChild('Humanoid')
+				if hum then
+					hum.Health = 0
+				end
+			end
+		end
+	end
 end
 
 
@@ -215,12 +236,9 @@ local function SendToSpawn()
 		elseif count > 14 and count <= 16 then 
 			TeleportPlayer(SL8[1], SL8[2], SL8[3])
 		end					
+		player.Team = witnesses
 	end
-
-	for _, Player in ipairs(game.Players:GetChildren()) do
-		clearInventory()
-		Player.Team = witnesses
-	end
+	wait(10)
 end
 
 --[[
@@ -261,10 +279,17 @@ local function RoundStart()
 		map = game.Workspace.Map01
 	elseif round_map == "Map02" then
 		map = game.Workspace.Map02
+--[[	elseif round_map == "Map03" then
+		map = game.Workspace.Map03
+	elseif round_map == "Map04" then
+		map = game.Workspace.Map04
+	else
+		map = game.Workspace.Map05
+]]
 	end
 	
 	wait(5)
-	print("ROUND IS STARTING . . . ")
+	--print("ROUND IS STARTING . . . ")
 	
 	TPort1 = {map.TPort1.Position.X, map.TPort1.Position.Y, map.TPort1.Position.Z}
 	TPort2 = {map.TPort2.Position.X, map.TPort2.Position.Y, map.TPort2.Position.Z}
@@ -296,17 +321,16 @@ local function RoundStart()
 	playMusic(GameSounds, rand_choice)
 	change_vol(SoundPicked)	
 
-	for count = 1, round_time  do
-		round_time = round_time - 1
+	repeat
 		wait(1)
-	end
-	
+		local GameRunningTime = GameRunningTime - 1
+	until GameRunningTime == 0
 	
 	wait(2)
+	clearInventory()
 	MapToClone.Parent = nil
 	music:Stop()
-	print("ROUND HAS ENDED")
-
+	--print("ROUND HAS ENDED")
 end
 
 --[[
@@ -318,5 +342,6 @@ while true do
 	wait(3)
 	pickKillerandTeams()
 	RoundStart()
+	clearInventory()
 	SendToSpawn()
 end
